@@ -11,18 +11,14 @@ RUN npm install --omit=dev && npm cache clean --force
 # Kopiowanie reszty kodu źródłowego
 COPY . .
 
-# Etap 2: Finalny obraz na podstawie scratch
-FROM scratch
-
-# Skopiowanie tylko plików niezbędnych do uruchomienia aplikacji
-# Kopiujemy aplikację do pustego obrazu scratch
-COPY --from=build /app /app
+# Etap 2: Finalny obraz
+FROM node:20-alpine
 
 # Ustawienie katalogu roboczego
 WORKDIR /app
 
-# Skopiowanie binariów Node.js
-COPY --from=build /usr/local/bin/node /usr/local/bin/
+# Skopiowanie zbudowanej aplikacji z etapu budowania
+COPY --from=build /app /app
 
 # Podanie autora zgodnie z OCI
 LABEL org.opencontainers.image.authors="Julia Grzesiewicz"
@@ -30,5 +26,8 @@ LABEL org.opencontainers.image.authors="Julia Grzesiewicz"
 # Ustawienie portu na którym aplikacja będzie nasłuchiwać
 EXPOSE 3000
 
+# Dodanie healthchecku
+HEALTHCHECK CMD curl --fail http://localhost:3000 || exit 1
+
 # Uruchomienie aplikacji
-CMD ["/usr/local/bin/node", "index.js"]
+CMD ["npm", "start"]
