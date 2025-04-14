@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pogoda</title>
+</head>
+<body>
+  <h1>Sprawdź pogodę</h1>
+  <form method="POST">
+    <label>Kraj:</label>
+    <select name="country" id="country" onchange="updateCities()">
+      <% for(let c in countries) { %>
+        <option value="<%= c %>"><%= c %></option>
+      <% } %>
+    </select>
+
+    <label>Miasto:</label>
+    <select name="city" id="city">
+      <% for(let city of countries["PL"]) { %>
+        <option value="<%= city %>"><%= city %></option>
+      <% } %>
+    </select>
+
+    <button type="submit">Pokaż pogodę</button>
+  </form>
+
+  <% if (weather && weather.temp) { %>
+    <p>Pogoda w <%= weather.city %>: <%= weather.temp %>°C, <%= weather.desc %></p>
+  <% } else if (weather && weather.error) { %>
+    <p style="color:red;"><%= weather.error %></p>
+  <% } %>
+
+  <script>
+    const countries = <%- JSON.stringify(countries) %>;
+    function updateCities() {
+      const country = document.getElementById("country").value;
+      const cities = countries[country];
+      const citySelect = document.getElementById("city");
+      citySelect.innerHTML = cities.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+  </script>
+</body>
+</html>
