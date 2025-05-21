@@ -4,7 +4,7 @@ FROM node:20-slim AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm install --omit=dev && npm audit fix || true
 
 COPY . .
 
