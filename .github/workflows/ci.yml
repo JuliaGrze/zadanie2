@@ -25,10 +25,11 @@ jobs:
       uses: docker/metadata-action@v5
       with:
         images: ${{ secrets.DOCKERHUB_USERNAME }}/zadanie2
-        flavor: latest=false
+        flavor: latest=true
         tags: |
           type=sha,priority=100,prefix=sha-,format=short
           type=semver,priority=200,pattern={{version}}
+          type=ref,event=branch
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
