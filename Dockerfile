@@ -9,7 +9,7 @@ RUN npm install --omit=dev && npm audit fix || true
 COPY . .
 
 # Etap 2: Finalny, maksymalnie odchudzony obraz
-FROM node:20-alpine AS production
+FROM node:20-alpine3.19 AS production
 
 WORKDIR /app
 
@@ -17,7 +17,9 @@ WORKDIR /app
 COPY --from=build /app /app
 
 # Dodaj curl do healthchecku
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl \
+ && npm install -g npm@latest \
+ && apk del curl
 
 LABEL org.opencontainers.image.authors="Julia Grzesiewicz"
 
