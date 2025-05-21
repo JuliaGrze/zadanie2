@@ -52,7 +52,10 @@ jobs:
         push: true
         cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zadanie2-cache
         cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zadanie2-cache,mode=max
-        tags: ${{ steps.meta.outputs.tags }}
+        tags: |
+          ${{ secrets.DOCKERHUB_USERNAME }}/zadanie2:sha-${{ github.sha }}
+          ${{ steps.meta.outputs.tags }}
+
 
     - name: Run Trivy CVE scan (fail on HIGH or CRITICAL)
       uses: aquasecurity/trivy-action@master
