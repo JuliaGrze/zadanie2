@@ -1,30 +1,26 @@
-# Zadanie1_chrmurka
+# Zadanie 2 – CI/CD z GitHub Actions i Docker
 
-# a. Zbudowanie obrazu:
-# docker build -t pogoda-app .
-![image](https://github.com/user-attachments/assets/1a8fcc20-6949-46f6-b176-9d9366c1fab9)
+## Opis
 
-# b. uruchomienie kontenera na podstawie zbudowanego obrazu
-# docker run -d -p 3000:3000 --name pogoda pogoda-app
-![image](https://github.com/user-attachments/assets/f2b69099-9a8c-40d9-8afb-290330596053)
+- Buduje obraz aplikacji (rozwiązanie zadania nr 1) na podstawie `Dockerfile`
+- Wspiera wieloarchitekturowość: `linux/amd64` i `linux/arm64`
+- Wysyła zbudowany obraz do publicznego repozytorium GitHub
+- Wykorzystuje cache przy buildzie (eksporter `registry`, backend `registry`, tryb `max`) — przechowywany w dedykowanym repozytorium na DockerHub
+- Wykonuje skanowanie CVE (Trivy), które zatrzymuje proces, jeśli obraz zawiera podatności o poziomie HIGH lub CRITICAL
 
-# c. logi, które wygenerowała opracowana aplikacja podczas  uruchamiana kontenera
-# docker logs pogoda
-![image](https://github.com/user-attachments/assets/1ed755ef-8c1e-4862-afa1-3a4aa252b4e3)
+## Zagrozenie HIGH
+(tag v1.1.4) skaner Trivy wykrył zagrożenie typu HIGH - w związku z tym proces publikacji obrazu został zatrzymany, zgodnie z konfiguracją (exit-code: '1' przy wykryciu HIGH/CRITICAL)
+Poprawka i ponowne uruchomienie - Zaktualizowano Dockerfile, dodając npm audit fix oraz instalację najnowszej wersji npm w alpine
+Przeprowadzono ponowną analizę CVE w pipeline (tag v1.1.5)
+Skan Trivy nie wykazał żadnych krytycznych ani wysokich zagrożeń — co umożliwiło wypchnięcie obrazu do GitHub
+![alt text](image.png)
 
-# d. liczba warstw - 8
-# docker history pogoda-app:latest
-![image](https://github.com/user-attachments/assets/c65915f4-4e4d-426e-80b9-65df3dc946b0)
+juliagrz/zadanie2 - Główne repozytorium z obrazem aplikacji
+juliagrz/zadanie2-cache - Repozytorium wykorzystywane do cache'u budowania
+![alt text](image-1.png)
 
-# działająca aplikacja: 
-![image](https://github.com/user-attachments/assets/8e7f8569-e409-4850-88a1-7f6f0e797a9d)
-![image](https://github.com/user-attachments/assets/46351e29-1c1d-4893-98e5-18b21ff7d16b)
-
-# Rozmiar - 328 MB
-# docker images
-![image](https://github.com/user-attachments/assets/acc86d90-b7bd-445a-a7b0-8f90b249ffd5)
-
-# Healthcheck
-![image](https://github.com/user-attachments/assets/4f8e0450-1e55-4a1a-a9a7-be7e54b17301)
-
-
+## Tagowanie obrazów
+Zastosowano następujące formaty tagów (określane przez docker/metadata-action):
+sha-<skrót_commit> — identyfikuje unikalnie obraz powiązany z konkretnym commitem
+v<semver> (np. v1.1.5) — wersjonowanie semantyczne publikacji
+main (dla brancha głównego) — obraz z ostatniego buildu z main
