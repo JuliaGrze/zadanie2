@@ -42,15 +42,6 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Run Trivy CVE scan (fail on HIGH or CRITICAL)
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/zadanie2:sha-${{ github.sha }}
-        format: 'table'
-        severity: 'CRITICAL,HIGH'
-        ignore-unfixed: true
-        exit-code: '1'
-
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
@@ -61,3 +52,12 @@ jobs:
         cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zadanie2-cache
         cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/zadanie2-cache,mode=max
         tags: ${{ steps.meta.outputs.tags }}
+
+    - name: Run Trivy CVE scan (fail on HIGH or CRITICAL)
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/zadanie2:sha-${{ github.sha }}
+        format: 'table'
+        severity: 'CRITICAL,HIGH'
+        ignore-unfixed: true
+        exit-code: '1'
