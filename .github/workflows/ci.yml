@@ -8,7 +8,7 @@ on:
 
 jobs:
   ci_step:
-    name: Build, scan and push Docker image to GitHub Container Registry
+    name: Build, scan and push Docker image to DockerHub
     runs-on: ubuntu-latest
 
     permissions:
@@ -24,7 +24,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ghcr.io/${{ github.repository }}
+        images: ${{ secrets.DOCKERHUB_USERNAME }}/zadanie2
         flavor: latest=false
         tags: |
           type=sha,priority=100,prefix=sha-,format=short
@@ -42,16 +42,10 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Login to GitHub Container Registry
-      run: |
-        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-
-
     - name: Run Trivy CVE scan (fail on HIGH or CRITICAL)
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/zadanie2:sha-${{ github.sha }}
         format: 'table'
         severity: 'CRITICAL,HIGH'
         ignore-unfixed: true
